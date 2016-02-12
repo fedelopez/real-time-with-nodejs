@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.io</title>
+</head>
+<body>
+<div>
+    <p>List of chatters:</p>
+    <ul id="chatters" style="border: 1px solid lightgray;"></ul>
+</div>
+<textarea id="chatText" cols="30" rows="10">Type a message here</textarea>
+<button id="send">Send</button>
+<ul id="data"></ul>
+<script src="jquery.min.js"></script>
+<script src="socket.io.js"></script>
+<script>
+    var socket = io();
+    $('#send').click(function () {
+        var msg = $('#chatText').val();
+        console.log("About to send: " + msg);
+        socket.emit('chat message', msg);
+    });
+    socket.on('connect', function () {
+        var user = prompt("What is your nickname?");
+        socket.emit('join', user);
+    });
+    socket.on('add chatter', function (data) {
+        console.log("Chatter arrived: " + data.nickname);
+        $("#chatters").prepend("<li id='" + data.nickname + "'>" + data.nickname + "</li>");
+    });
+    socket.on('remove chatter', function (data) {
+        console.log("Chatter left: " + data.nickname);
+        $("#" + data.nickname).remove();
+    });
+    socket.on('messages', function (data) {
+        console.log("Received: " + data.text);
+        $("#data").prepend("<li>(" + data.nickname + ") " + data.text + "</li>");
+    });
+</script>
+</body>
+</html>
